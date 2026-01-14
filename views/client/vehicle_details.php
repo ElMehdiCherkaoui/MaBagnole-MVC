@@ -1,14 +1,11 @@
 <?php
 require_once __DIR__ . '/../../autoload.php';
-session_start();
-$user = (new User)->listUserLogged($_SESSION['userEmailLogin']);
-$vehicles = new Vehicle();
+
+$vehicleController = new VehicleController();
 if (isset($_GET['id'])) {
-    $vehicle =  $vehicles->getVehicle((int)$_GET['id']);
+    $vehicle = $vehicleController->showVehicle((int)$_GET['id']);
 }
-if (!isset($_GET['id'])) {
-    header("location: vehicles.php");
-}
+$user = (new User)->listUserLogged($_SESSION['userEmailLogin']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -76,7 +73,7 @@ if (!isset($_GET['id'])) {
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <?php if($vehicle->vehicleAvailability == '1'):?>
+                    <?php if ($vehicle->vehicleAvailability == '1'): ?>
                     <i class="fas fa-check-circle text-green-500 mr-3"></i>
                     <div>
                         <span class="font-semibold text-gray-500">Availability:</span>

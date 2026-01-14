@@ -5,53 +5,26 @@ $vehicle = new Vehicle();
 $vehicles = $vehicle->getAllVehicles();
 $categories = (new Category())->listCategory();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
-
-    $vehicle->vehicleImage = $_POST['vehicleImage'];
-    $vehicle->vehicleModel = $_POST['vehicleModel'];
-    $vehicle->vehicleDescription = $_POST['vehicleDescription'];
-    $vehicle->vehiclePricePerDay = $_POST['vehiclePricePerDay'];
-    $vehicle->vehicleAvailability = $_POST['vehicleAvailability'];
-    $vehicle->vehicleIdCategory = $_POST['vehicleIdCategory'];
-
-    $result = $vehicle->addVehicle();
-    if ($result === 'success') {
-        header('Location: vehicles.php');
-        exit;
-    } else {
-        echo $result;
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_vehicle'])) {
-
-    $id = (int) $_POST['vehicle_id'];
-
-    $vehicle->vehicleImage = $_POST['vehicleImage'];
-    $vehicle->vehicleModel = $_POST['vehicleModel'];
-    $vehicle->vehicleDescription = $_POST['vehicleDescription'];
-    $vehicle->vehiclePricePerDay = $_POST['vehiclePricePerDay'];
-    $vehicle->vehicleAvailability = $_POST['vehicleAvailability'];
-    $vehicle->vehicleIdCategory = $_POST['vehicleIdCategory'];
-
-    $result = $vehicle->updateVehicle($id);
-    if ($result === 'success') {
-        header('Location: vehicles.php');
-        exit;
-    } else {
-        echo $result;
-    }
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
-
-    $id = (int) $_POST['Vehicleid'];
-
-    $result = $vehicle->deleteVehicle($id);
-    if ($result === 'success') {
-        header('Location: vehicles.php');
-        exit;
-    } else {
-        echo $result;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $vehicleController = new VehicleController();
+    if (isset($_POST['add_vehicle'])) {
+        $result = $vehicleController->storeVehicle();
+        if ($result === 'success') {
+            header('Location: vehicles.php');
+            exit;
+        }
+    } elseif (isset($_POST['edit_vehicle'])) {
+        $result = $vehicleController->updateVehicle($_POST['vehicle_id']);
+        if ($result === 'success') {
+            header('Location: vehicles.php');
+            exit;
+        }
+    } elseif (isset($_POST['Vehicleid'])) {
+        $result = $vehicleController->deleteVehicle($_POST['Vehicleid']);
+        if ($result === 'success') {
+            header('Location: vehicles.php');
+            exit;
+        }
     }
 }
 ?>
@@ -149,20 +122,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
                 <tbody class="text-gray-100">
                     <?php foreach ($vehicles as $vehi): ?>
 
-                    <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
-                        <td class="px-6 py-4"><?= $vehi->Vehicle_id ?></td>
-                        <td class="px-6 py-4"><?= $vehi->vehicleModel ?></td>
-                        <td class="px-6 py-4"><?= $vehi->categoryName ?></td>
-                        <td class="px-6 py-4"><?= $vehi->vehicleDescription ?></td>
-                        <td class="px-6 py-4"><?= $vehi->vehiclePricePerDay ?>$</td>
-                        <td class="px-6 py-4">
-                            <?= $vehi->vehicleAvailability == 1 ? 'Available' : 'Not Available' ?>
-                        </td>
-                        <td class="px-6 py-4"><img src="<?= $vehi->image ?>" alt=""></td>
+                        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+                            <td class="px-6 py-4"><?= $vehi->Vehicle_id ?></td>
+                            <td class="px-6 py-4"><?= $vehi->vehicleModel ?></td>
+                            <td class="px-6 py-4"><?= $vehi->categoryName ?></td>
+                            <td class="px-6 py-4"><?= $vehi->vehicleDescription ?></td>
+                            <td class="px-6 py-4"><?= $vehi->vehiclePricePerDay ?>$</td>
+                            <td class="px-6 py-4">
+                                <?= $vehi->vehicleAvailability == 1 ? 'Available' : 'Not Available' ?>
+                            </td>
+                            <td class="px-6 py-4"><img src="<?= $vehi->image ?>" alt=""></td>
 
 
-                        <td class="px-6 py-4 flex gap-2">
-                            <button onclick="openEditVehicle(
+                            <td class="px-6 py-4 flex gap-2">
+                                <button onclick="openEditVehicle(
         <?= $vehi->Vehicle_id ?>,
         '<?= htmlspecialchars($vehi->vehicleModel) ?>',
         '<?= htmlspecialchars($vehi->image) ?>',
@@ -171,22 +144,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
         <?= $vehi->vehicleAvailability ?>,
         <?= $vehi->vehicleIdCategory ?>
     )" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-white font-semibold editBtn">
-                                Edit
-                            </button>
-
-
-
-                            <form method="POST" action="#" ;
-                                onsubmit="return confirm('Are you sure you want to delete this category?')">
-                                <input type="hidden" name="Vehicleid" value="<?= $vehi->Vehicle_id ?>">
-                                <button type="submit"
-                                    class="px-3 py-1 bg-red-800 hover:bg-red-900 rounded text-white font-semibold">
-                                    Delete
+                                    Edit
                                 </button>
-                            </form>
 
-                        </td>
-                    </tr>
+
+
+                                <form method="POST" action="#" ;
+                                    onsubmit="return confirm('Are you sure you want to delete this category?')">
+                                    <input type="hidden" name="Vehicleid" value="<?= $vehi->Vehicle_id ?>">
+                                    <button type="submit"
+                                        class="px-3 py-1 bg-red-800 hover:bg-red-900 rounded text-white font-semibold">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </td>
+                        </tr>
 
                     <?php endforeach; ?>
                 </tbody>
@@ -245,9 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
                     <select name="vehicleIdCategory" required
                         class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:border-red-500">
                         <?php foreach ($categories as $category): ?>
-                        <option value="<?= $category->Category_id ?>">
-                            <?= htmlspecialchars($category->categoryName) ?>
-                        </option>
+                            <option value="<?= $category->Category_id ?>">
+                                <?= htmlspecialchars($category->categoryName) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -321,9 +294,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
                     <select name="vehicleIdCategory" id="editVehicleCategory" required
                         class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:border-red-500">
                         <?php foreach ($categories as $category): ?>
-                        <option value="<?= $category->Category_id ?>">
-                            <?= htmlspecialchars($category->categoryName) ?>
-                        </option>
+                            <option value="<?= $category->Category_id ?>">
+                                <?= htmlspecialchars($category->categoryName) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -348,34 +321,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Vehicleid'])) {
 
 </body>
 <script>
-const addVehicleBtn = document.getElementById('addVehicleBtn');
-const addVehicleModal = document.getElementById('addVehicleModal');
-const closeVehicleModal = document.getElementById('closeVehicleModal');
-const cancelVehicleModal = document.getElementById('cancelVehicleModal');
+    const addVehicleBtn = document.getElementById('addVehicleBtn');
+    const addVehicleModal = document.getElementById('addVehicleModal');
+    const closeVehicleModal = document.getElementById('closeVehicleModal');
+    const cancelVehicleModal = document.getElementById('cancelVehicleModal');
 
-addVehicleBtn.onclick = () => addVehicleModal.classList.remove('hidden');
-closeVehicleModal.onclick = () => addVehicleModal.classList.add('hidden');
-cancelVehicleModal.onclick = () => addVehicleModal.classList.add('hidden');
-
-
+    addVehicleBtn.onclick = () => addVehicleModal.classList.remove('hidden');
+    closeVehicleModal.onclick = () => addVehicleModal.classList.add('hidden');
+    cancelVehicleModal.onclick = () => addVehicleModal.classList.add('hidden');
 
 
-const editModal = document.getElementById('editVehicleModal');
 
-function openEditVehicle(id, model, image, desc, price, availability, category) {
-    document.getElementById('editVehicleId').value = id;
-    document.getElementById('editVehicleModel').value = model;
-    document.getElementById('editVehicleImage').value = image;
-    document.getElementById('editVehicleDesc').value = desc;
-    document.getElementById('editVehiclePrice').value = price;
-    document.getElementById('editVehicleAvailability').value = availability;
-    document.getElementById('editVehicleCategory').value = category;
 
-    editModal.classList.remove('hidden');
-}
+    const editModal = document.getElementById('editVehicleModal');
 
-document.getElementById('closeEditVehicleModal').onclick = () => editModal.classList.add('hidden');
-document.getElementById('cancelEditVehicleModal').onclick = () => editModal.classList.add('hidden');
+    function openEditVehicle(id, model, image, desc, price, availability, category) {
+        document.getElementById('editVehicleId').value = id;
+        document.getElementById('editVehicleModel').value = model;
+        document.getElementById('editVehicleImage').value = image;
+        document.getElementById('editVehicleDesc').value = desc;
+        document.getElementById('editVehiclePrice').value = price;
+        document.getElementById('editVehicleAvailability').value = availability;
+        document.getElementById('editVehicleCategory').value = category;
+
+        editModal.classList.remove('hidden');
+    }
+
+    document.getElementById('closeEditVehicleModal').onclick = () => editModal.classList.add('hidden');
+    document.getElementById('cancelEditVehicleModal').onclick = () => editModal.classList.add('hidden');
 </script>
 
 </html>

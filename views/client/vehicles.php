@@ -1,28 +1,23 @@
 <?php
 require_once __DIR__ . '/../../autoload.php';
-session_start();
 
-$search   = $_POST['search'] ?? '';
-$category = $_POST['category'] ?? 'all';
-
-if (!empty($search)) {
-    $filteredVehicles = (new Vehicle)->getVehiclesByModel($search);
-} else {
-    $filteredVehicles = (new Vehicle)->getAllVehicles();
-}
-
-if (isset($_POST['ajax']) && $_POST['ajax'] === 'true') {
-    header('Content-Type: application/json');
-
-    if ($category !== 'all') {
-        $filteredVehicles = (new Vehicle)->getVehiclesByCategory($category);
-    }
-    echo json_encode($filteredVehicles);
-    exit;
-}
+$vehicleController = new VehicleController();
+$categoryController = new CategoryController();
+$vehicles = $vehicleController->listVehicles();
+$categories = $categoryController->listCategories();
 
 $user = (new User)->listUserLogged($_SESSION['userEmailLogin']);
-$categories = (new Category)->listCategory();
+
+$search = $_POST['search'] ?? '';
+$category = $_POST['category'] ?? 'all';
+
+
+
+if (isset($_POST['ajax'])) {
+    header('Content-Type: application/json');
+    echo json_encode($vehicles);
+    exit;
+}
 ?>
 
 
@@ -109,7 +104,7 @@ $categories = (new Category)->listCategory();
                 </tr>
             </thead>
             <tbody id="vehiclesContainer">
-                <?php foreach ($filteredVehicles as $vehicle): ?>
+                <?php foreach ($vehicles as $vehicle): ?>
                 <tr class="bg-white border-b hover:bg-gray-50">
                     <td class="px-6 py-4">
                         <img src="<?php echo htmlspecialchars($vehicle->image); ?>"
