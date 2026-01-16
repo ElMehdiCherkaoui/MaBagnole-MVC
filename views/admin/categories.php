@@ -1,51 +1,19 @@
 <?php
 require_once __DIR__ . '/../../autoload.php';
 
-$cate = new Category();
-$categories = $cate->listCategory();
+$controller = new CategoryController();
+$categories = $controller->listCategories();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
-
-
-    $cate->categoryName = $_POST['categoryName'];
-    $cate->descriptionCategory = $_POST['categoryDescription'];
-
-    $result = $cate->ajouteCategory();
-
-    if ($result === 'success') {
-        header('Location: categories.php');
-        exit;
-    } else {
-        echo $result;
-    }
+    $controller->createCategory();
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editCategoryId'])) {
-
-
-    $cate->categoryName = $_POST['categoryName'];
-    $cate->descriptionCategory = $_POST['categoryDescription'];
-    $result = $cate->modifyCategory((int)$_POST['category_id']);
-
-    if ($result === 'success') {
-        header('Location: categories.php');
-        exit;
-    } else {
-        echo $result;
-    }
+    $controller->updateCategory((int)$_POST['category_id']);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id'])) {
-    $category = new Category();
-    $id = (int) $_POST['category_id'];
-
-    $result = $category->suppressionCategory($id);
-
-    if ($result === 'success') {
-        header('Location: categories.php');
-        exit;
-    } else {
-        echo $result;
-    }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id']) && !isset($_POST['editCategoryId'])) {
+    $controller->deleteCategory((int)$_POST['category_id']);
 }
 ?>
 
@@ -161,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id'])) {
                             </button>
 
 
-                            <form method="POST" action="#" ;
+                            <form method="POST" ;
                                 onsubmit="return confirm('Are you sure you want to delete this category?')">
                                 <input type="hidden" name="category_id" value="<?= $category->Category_id ?>">
                                 <button type="submit"
@@ -190,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id'])) {
                 <button id="closeAddModal" class="text-gray-400 hover:text-white text-xl">&times;</button>
             </div>
 
-            <form method="POST" action="categories.php" class="space-y-4">
+            <form method="POST" class="space-y-4">
                 <input type="hidden" name="add_category" value=" 1">
 
                 <div>
@@ -231,8 +199,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id'])) {
                 <button id="closeEditModal" class="text-gray-400 hover:text-white text-xl">&times;</button>
             </div>
 
-            <form method="POST" action="categories.php" class="space-y-4">
+            <form method="POST" class="space-y-4">
 
+                <input type="hidden" name="editCategoryId" value="1">
                 <input type="hidden" name="category_id" id="editCategoryId">
 
                 <div>

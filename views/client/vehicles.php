@@ -8,10 +8,6 @@ $categories = $categoryController->listCategories();
 
 $user = (new User)->listUserLogged($_SESSION['userEmailLogin']);
 
-$search = $_POST['search'] ?? '';
-$category = $_POST['category'] ?? 'all';
-
-
 
 if (isset($_POST['ajax'])) {
     header('Content-Type: application/json');

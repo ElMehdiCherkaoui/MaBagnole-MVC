@@ -18,42 +18,6 @@ class VehicleController
         return $vehicle;
     }
 
-    public function reserveVehicle($id)
-    {
-        session_start();
-
-
-        $user = (new User())->listUserLogged($_SESSION['userEmailLogin']);
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $startDate = $_POST['startDate'];
-            $endDate = $_POST['endDate'];
-            $location = htmlspecialchars($_POST['location']);
-
-            $vehicle = (new Vehicle())->getVehicle($id);
-
-            $days = (strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24);
-            if ($days <= 0) {
-                exit;
-            }
-
-            $total = $vehicle->vehiclePricePerDay * $days;
-
-            $reservation = new Reservation();
-            $reservation->reservationStartDate = $startDate;
-            $reservation->reservationEndDate = $endDate;
-            $reservation->reservationPickupLocation = $location;
-            $reservation->reservationTotalAmount = $total;
-            $reservation->reservationIdUser = $user->Users_id;
-            $reservation->reservationIdVehicle = $id;
-
-            $result = $reservation->ajouteReservation();
-
-            exit;
-        }
-
-        $vehicle = (new Vehicle())->getVehicle($id);
-    }
-
     public function storeVehicle()
     {
         session_start();
